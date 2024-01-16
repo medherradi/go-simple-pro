@@ -1,7 +1,10 @@
 package prices
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -9,6 +12,26 @@ type TaxIncludedPrice struct {
 	TaxRate         float64
 	InPrices        []float64
 	TaxIncludPrices map[string][]float64
+}
+
+// function that read txt file
+func (p TaxIncludedPrice) LoadDataFromTxt() ([]string, error) {
+	file, err := os.Open("prices.txt")
+	if err != nil {
+		return nil, errors.New("something went wrong: " + err.Error())
+	}
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	err = scanner.Err()
+	if err != nil {
+		fmt.Println("Could not open file")
+		fmt.Println(err)
+		return nil, errors.New("reading content in file failed: " + err.Error())
+	}
+	return lines, nil
 }
 
 // function related struct
