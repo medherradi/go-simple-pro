@@ -15,13 +15,14 @@ type TaxIncludedPrice struct {
 }
 
 // function that read txt file
-func (p TaxIncludedPrice) LoadDataFromTxt() ([]string, error) {
+func (p TaxIncludedPrice) LoadDataFromTxt() ([]float64, error) {
 	file, err := os.Open("prices.txt")
 	if err != nil {
 		return nil, errors.New("something went wrong: " + err.Error())
 	}
 	scanner := bufio.NewScanner(file)
 	var lines []string
+	var arrayFloat []float64
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
@@ -31,7 +32,14 @@ func (p TaxIncludedPrice) LoadDataFromTxt() ([]string, error) {
 		fmt.Println(err)
 		return nil, errors.New("reading content in file failed: " + err.Error())
 	}
-	return lines, nil
+	for _, value := range lines {
+		floatNum, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return nil, errors.New("can not parse to float: " + err.Error())
+		}
+		arrayFloat = append(arrayFloat, floatNum)
+	}
+	return arrayFloat, nil
 }
 
 // function related struct
