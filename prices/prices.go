@@ -2,10 +2,10 @@ package prices
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
-	"strconv"
+
+	"revenue.com/project/conversion"
 )
 
 type TaxIncludedPrice struct {
@@ -15,40 +15,40 @@ type TaxIncludedPrice struct {
 }
 
 // function that read txt file
-func (p TaxIncludedPrice) LoadDataFromTxt() ([]float64, error) {
+func (p *TaxIncludedPrice) LoadDataFromTxt() {
 	file, err := os.Open("prices.txt")
 	if err != nil {
-		return nil, errors.New("something went wrong: " + err.Error())
+		fmt.Println("error occured while opening file: " + err.Error())
+		return
 	}
 	scanner := bufio.NewScanner(file)
 	var lines []string
-	var arrayFloat []float64
+
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
 	err = scanner.Err()
 	if err != nil {
-		fmt.Println("Could not open file")
-		fmt.Println(err)
-		return nil, errors.New("reading content in file failed: " + err.Error())
+		fmt.Println("reading content in file failed: " + err.Error())
+		file.Close()
+		return
 	}
-	for _, value := range lines {
-		floatNum, err := strconv.ParseFloat(value, 64)
-		if err != nil {
-			return nil, errors.New("can not parse to float: " + err.Error())
-		}
-		arrayFloat = append(arrayFloat, floatNum)
+	arrayFloat, err := conversion.StringsToFloat(lines)
+	if err != nil {
+		file.Close()
+		return
 	}
-	return arrayFloat, nil
+	p.InPrices = arrayFloat
+
 }
 
 // function related struct
-func (p TaxIncludedPrice) Process() {
-	result := make(map[string]float64)
-
+func (p *TaxIncludedPrice) Process() {
+	p.LoadDataFromTxt()
+	result := make(map[string]string)
 	for _, val := range p.InPrices {
-
-		result[strconv.Itoa(int(val))] = val * (1 + p.TaxRate)
+		calcTaxIncPrice := val * (1 + p.TaxRate)
+		result[fmt.Sprintf("%.2f", val)] = fmt.Sprintf("%.2f", calcTaxIncPrice)
 
 	}
 	fmt.Println(result)
