@@ -15,7 +15,7 @@ type TaxIncludedPrice struct {
 
 // function that read txt file
 func (p *TaxIncludedPrice) LoadDataFromTxt() {
-	lines, err := filemanager.ReadFilesLines("text.tx")
+	lines, err := filemanager.ReadFilesLines("prices.txt")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -38,7 +38,7 @@ func (p *TaxIncludedPrice) Process() {
 
 	}
 	p.TaxIncludPrices = result
-	filemanager.StoreDataAsJson("result.json", p)
+	filemanager.StoreDataAsJson(fmt.Sprintf("result_%.0f.json", p.TaxRate*100), p)
 }
 
 // adding constructor function with New key word
