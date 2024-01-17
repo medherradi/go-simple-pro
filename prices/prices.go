@@ -1,45 +1,31 @@
 package prices
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 
 	"revenue.com/project/conversion"
+	"revenue.com/project/filemanager"
 )
 
 type TaxIncludedPrice struct {
 	TaxRate         float64
 	InPrices        []float64
-	TaxIncludPrices map[string][]float64
+	TaxIncludPrices map[string]string
 }
 
 // function that read txt file
 func (p *TaxIncludedPrice) LoadDataFromTxt() {
-	file, err := os.Open("prices.txt")
+	lines, err := filemanager.ReadFilesLines("text.tx")
 	if err != nil {
-		fmt.Println("error occured while opening file: " + err.Error())
-		return
-	}
-	scanner := bufio.NewScanner(file)
-	var lines []string
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	err = scanner.Err()
-	if err != nil {
-		fmt.Println("reading content in file failed: " + err.Error())
-		file.Close()
+		fmt.Println(err.Error())
 		return
 	}
 	arrayFloat, err := conversion.StringsToFloat(lines)
 	if err != nil {
-		file.Close()
+		fmt.Println("error occured while converting to float: " + err.Error())
 		return
 	}
 	p.InPrices = arrayFloat
-
 }
 
 // function related struct
@@ -51,7 +37,8 @@ func (p *TaxIncludedPrice) Process() {
 		result[fmt.Sprintf("%.2f", val)] = fmt.Sprintf("%.2f", calcTaxIncPrice)
 
 	}
-	fmt.Println(result)
+	p.TaxIncludPrices = result
+	filemanager.StoreDataAsJson("result.json", p)
 }
 
 // adding constructor function with New key word

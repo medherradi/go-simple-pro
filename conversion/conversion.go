@@ -12,7 +12,7 @@ func StringsToFloat(arrayString []string) ([]float64, error) {
 		floatNum, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			fmt.Println("can not parse to float: " + err.Error())
-			return []float64{}, errors.New("can not parse to float: " + err.Error())
+			return nil, errors.New("can not parse to float: " + err.Error())
 		}
 		arrayFloat[index] = floatNum
 	}
